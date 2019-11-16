@@ -1,0 +1,13 @@
+name: "adc_sar"
+version: "0.0.1"
+# description of the package
+description: "1 to 14 bits sar"
+# list of files for the design
+designs:
+  - core.v
+  - ports.v
+# list of files for the constraints
+constraints:
+# list of package names
+dependencies:
+  - resync

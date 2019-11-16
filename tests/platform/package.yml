@@ -1,0 +1,11 @@
+assertions: null
+constraints: null
+dependencies:
+- resync = 0.0.1
+- adc_sar = 0.0.1
+description: ''
+designs: null
+libraries: null
+models: null
+name: basic package
+version: 0.0.1
