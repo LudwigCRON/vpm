@@ -15,7 +15,7 @@ Package = namedtuple('Package', ['name', 'operator', 'version'])
 DEFAULT_PKG = "package.yml"
 
 
-def read_package(path: str):
+def read_package(path: str = None):
     # create package file if none
     pkg_file = get_package_path(path)
     # check in the package file
@@ -38,7 +38,7 @@ def get_package_path(path: str = None):
     return pkg_file
 
 
-def _parse_pkgname(name: str):
+def parse_pkgname(name: str):
     if not isinstance(name, str):
         return None
     # assume <name><operator><version>
@@ -47,7 +47,7 @@ def _parse_pkgname(name: str):
     return Package(*m[0])
 
 
-def _version_(version: str):
+def version_to_num(version: str):
     if not '.' in version:
         return 999999
     return sum([int(s, 10)*10**(3*k) for k, s in enumerate(version.split('.'))])

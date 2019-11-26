@@ -5,14 +5,17 @@ import vpm
 
 
 def is_newer(pkga, pkgb):
-    return vpm._version_(pkga.version) >= vpm._version_(pkgb.version)
+    return vpm.version_to_num(pkga.version) > vpm.version_to_num(pkgb.version)
 
+
+def is_newer_or_identical(pkga, pkgb):
+    return vpm.version_to_num(pkga.version) >= vpm.version_to_num(pkgb.version)
 
 def is_package_installed(p, path=None):
     pkg = vpm.read_package(path)
     # check name
     if p.name == pkg.get('name'):
-        return is_newer(
+        return is_newer_or_identical(
             vpm.Package(pkg.get('name'),'', pkg.get('version')),
             p
         )
@@ -33,7 +36,7 @@ def is_package(p, path=None):
     pkg = vpm.read_package(path)
     # check name
     if p.name == pkg.get('name'):
-        return is_newer(
+        return is_newer_or_identical(
             vpm.Package(pkg.get('name'),'', pkg.get('version')),
             p
         )

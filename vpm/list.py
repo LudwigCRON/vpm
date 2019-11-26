@@ -46,25 +46,48 @@ def resolve_dependancies(node, resolved, unresolved) -> None:
     unresolved.remove(node)
 
 # list functions
-def list_installed():
+def list_installed(no_print: bool = False):
     # create package file if none
     pkg = vpm.read_package()
     deps = pkg.get("dependencies", None)
     if deps is None:
         print("No dependencies installed")
         return
+    if no_print:
+        return [vpm.parse_pkgname(dep) for dep in deps]
     for dep in deps:
-        p = vpm._parse_pkgname(dep)
+        p = vpm.parse_pkgname(dep)
         if p:
             print("%s %s %s" % (p.name, p.operator, p.version))
 
 
 def list_outdated():
-    pass
+    # get list of installed package
+    deps = list_installed(no_print=True)
+    # get list of available package
+    pkgs = [vpm.Package(pkg.get("name"), '=', pkg.get("version")) for pkg in list_available(no_print=True)]
+    # compare the version
+    count = 0
+    for dep in deps:
+        candidates = [pkg.version for pkg in pkgs if vpm.is_newer(pkg, dep)]
+        if any(candidates):
+            print("%s %s --> %s" % (dep.name, dep.version, max(candidates)))
+            count += 1
+    if count == 0:
+        print("No outdated package found")
 
 
-def list_available():
-    pass
+def list_available(no_print: bool = False):
+    cfg = vpm.find_config()
+    if not cfg.has_section("repositories"):
+        print("No repository's source defined")
+        return
+    srcs = cfg["repositories"].get("sources", "").split()
+    if no_print:
+        return [vpm.read_package(src) for src in srcs]
+    for src in srcs:
+        pkg = vpm.read_package(src)
+        print("%s %s" % (pkg.get("name"), pkg.get("version")))
 
 
 def list_corrupted():
@@ -72,19 +95,9 @@ def list_corrupted():
 
 
 def list_sources():
-    CURRENT_DIR = os.getcwd()
-    CURRENT_FILE = os.path.join(CURRENT_DIR, "sources.list")
-    if not os.path.exists(CURRENT_FILE):
-        CURRENT_DIR = os.path.dirname(__file__)
-        CURRENT_FILE = os.path.join(CURRENT_DIR, "sources.list")
-    srcs_path = [os.getcwd()]
-    with open(CURRENT_FILE, "r+") as fp:
-        for line in fp:
-            l = line.strip()
-            if l[0] == '.':
-                srcs_path.append(
-                    os.path.abspath(os.path.join(CURRENT_DIR, l))
-                )
-            else:
-                srcs_path.append(l)
-    return srcs_path
+    cfg = vpm.find_config()
+    if not cfg.has_section("repositories"):
+        print("No repository's source defined")
+        return
+    srcs = cfg["repositories"].get("sources", "").split()
+    return srcs

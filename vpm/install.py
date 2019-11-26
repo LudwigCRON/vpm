@@ -40,7 +40,14 @@ def register_package(p):
     vpm.write_package(pkg)
 
 
-def dispath_files(path=None):
+def unregister_package(p):
+    pkg = vpm.read_package()
+    # remove the package p from pkg
+    
+    # update the db
+    vpm.write_package(pkg)
+
+def dispatch_files(path=None):
     if path is None or not os.path.exists(path):
         return
     # read the package file
@@ -81,7 +88,7 @@ def install_package(name: str):
     if not isinstance(name, str):
         print("verify the typed package name")
         return
-    pkg = vpm._parse_pkgname(name)
+    pkg = vpm.parse_pkgname(name)
     # check not already installed
     if vpm.is_package_installed(pkg):
         print("package already satisfied")
@@ -94,6 +101,19 @@ def install_package(name: str):
     # check dependencies
     check_dependencies(src[0])
     # download sources
-    pkg = dispath_files(src[0])
+    pkg = dispatch_files(src[0])
     # register in the package.yml
     register_package(pkg)
+
+def remove_package(name: str):
+    if not isinstance(name, str):
+        print("verify the typed package name")
+        return
+    pkg = vpm.parse_pkgname(name)
+    # find the source
+    src = [s for s in vpm.list_sources() if vpm.is_package(pkg, path=s)]
+    if not src:
+        print(name+" is not found")
+        return
+    # remove each files
+    # unregister in the package.yml
