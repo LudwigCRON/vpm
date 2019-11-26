@@ -11,6 +11,11 @@ def is_newer(pkga, pkgb):
 def is_newer_or_identical(pkga, pkgb):
     return vpm.version_to_num(pkga.version) >= vpm.version_to_num(pkgb.version)
 
+
+def is_same(pkga, pkgb):
+    return vpm.version_to_num(pkga.version) == vpm.version_to_num(pkgb.version)
+
+
 def is_package_installed(p, path=None):
     pkg = vpm.read_package(path)
     # check name
@@ -24,17 +29,22 @@ def is_package_installed(p, path=None):
     if lst is None:
         lst = []
     # check newer version of a package
-    deps = [vpm._parse_pkgname(dep) for dep in lst if not dep is None]
+    deps = [vpm.parse_pkgname(dep) for dep in lst if not dep is None]
     for dep in deps:
         if not dep is None and p.name == dep.name:
             return is_newer(dep, p)
     return False
 
 
-def is_package(p, path=None):
+def is_package(p, path=None, identical: bool=False):
     # create package file if none
     pkg = vpm.read_package(path)
     # check name
+    if p.name == pkg.get('name') and identical:
+        return is_same(
+            vpm.Package(pkg.get('name'),'', pkg.get('version')),
+            p
+        )
     if p.name == pkg.get('name'):
         return is_newer_or_identical(
             vpm.Package(pkg.get('name'),'', pkg.get('version')),

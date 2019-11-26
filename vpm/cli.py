@@ -102,7 +102,7 @@ def cli_main():
     if not args.install is None:
         vpm.install_package(args.install.lower())
     elif not args.update is None:
-        pass
+        vpm.install_package(args.update.lower(), force=True)
     elif not args.list is None:
         if args.list.lower() == "installed":
             vpm.list_installed()
@@ -112,10 +112,12 @@ def cli_main():
             vpm.list_available()
         elif args.list.lower() == "corrupted":
             vpm.list_corrupted()
+        elif args.list.lower() == "sources":
+            vpm.list_sources()
         else:
             print("unknown option")
     elif not args.remove is None:
-        pass
+        vpm.remove_package(args.remove.lower())
     else:
         print("unknown actions")
         parser.print_help()

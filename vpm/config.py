@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+import re
 import os
 import vpm
 import configparser
@@ -16,10 +17,19 @@ def read_config(filepath: str):
         config.read_file(fp)
     config.read([filepath])
     return config
-    
+
+
 def find_config():
     # find a vpm.config file in the current directory tree
     cfgs = Path(os.getcwd()).glob("**/vpm.config")
     for cfg in cfgs:
         if cfg.is_file():
             return read_config(str(cfg))
+
+
+def config_interp(cfg, section, key):
+    value = cfg[section].get(key)
+    matches = re.findall(r"\${([\w\_\-\. ]+)}", value)
+    for m in matches:
+        value = value.replace("${%s}" % m, os.getenv(m, ""))
+    return value

@@ -94,10 +94,13 @@ def list_corrupted():
     pass
 
 
-def list_sources():
+def list_sources(no_print: bool = False):
     cfg = vpm.find_config()
     if not cfg.has_section("repositories"):
         print("No repository's source defined")
         return
     srcs = cfg["repositories"].get("sources", "").split()
-    return srcs
+    if no_print:
+        return srcs
+    for src in srcs:
+        print(src)
