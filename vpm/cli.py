@@ -8,9 +8,6 @@ import vpm
 import yaml
 import argparse
 
-from collections import namedtuple
-
-Package = namedtuple('Package', ['name', 'operator', 'version'])
 
 DEFAULT_PKG = "package.yml"
 
@@ -21,7 +18,7 @@ def read_package(path: str = None):
     # check in the package file
     with open(pkg_file, "r+") as fp:
         pkg = yaml.load(fp, Loader=yaml.FullLoader)
-    return pkg
+    return vpm.Package.from_dict(pkg)
 
 
 def write_package(pkg, path: str = None):
@@ -42,15 +39,9 @@ def parse_pkgname(name: str):
     if not isinstance(name, str):
         return None
     # assume <name><operator><version>
-    RE_PKG_NAME_VERSION = r"([\w\_\-]+)\s*(>|>=|=|<|<=)?\s*([\w\d\.\-]*)?$"
+    RE_PKG_NAME_VERSION = r"([\w\_\-]+)\s*(?:>|>=|=|<|<=)?\s*([\w\d\.\-]*)?$"
     m = re.findall(RE_PKG_NAME_VERSION, name, flags=re.MULTILINE)
-    return Package(*m[0])
-
-
-def version_to_num(version: str):
-    if not '.' in version:
-        return 999999
-    return sum([int(s, 10)*10**(3*k) for k, s in enumerate(version.split('.'))])
+    return vpm.Package(*m[0])
 
 
 def _create_req_file():
@@ -59,19 +50,19 @@ def _create_req_file():
         with open(CURRENT_FILE, "w+") as fp:
             fp.write('name: "basic package"\n')
             fp.write('version: "0.0.1"\n')
-            fp.write('# description of the package\n')
+            fp.write("# description of the package\n")
             fp.write('description: ""\n')
-            fp.write('# list of files for the design\n')
-            fp.write('designs:\n')
-            fp.write('# list of files for the constraints\n')
-            fp.write('constraints:\n')
-            fp.write('# files only needed for simulations\n')
-            fp.write('models:\n')
-            fp.write('# formal verification files\n')
-            fp.write('assertions:\n')
-            fp.write('libraries:\n')
-            fp.write('# list of package names\n')
-            fp.write('dependencies:\n')
+            fp.write("# list of files for the design\n")
+            fp.write("designs:\n")
+            fp.write("# list of files for the constraints\n")
+            fp.write("constraints:\n")
+            fp.write("# files only needed for simulations\n")
+            fp.write("models:\n")
+            fp.write("# formal verification files\n")
+            fp.write("assertions:\n")
+            fp.write("libraries:\n")
+            fp.write("# list of package names\n")
+            fp.write("dependencies:\n")
     return CURRENT_FILE
 
 
@@ -81,29 +72,26 @@ def cli_args():
         "install": "install a package from its name and version",
         "update": "update a package from its name",
         "list": "list all packages available or installed",
-        "remove": "remove a package"
+        "remove": "remove a package",
     }
     # make sys args available
-    arguments = ['--'+a if a in mangle_args.keys() else a for a in sys.argv[1:]]
+    arguments = ["--" + a if a in mangle_args.keys() else a for a in sys.argv[1:]]
     parser = argparse.ArgumentParser()
     for a in mangle_args.keys():
         parser.add_argument(
-            '-'+a[0],
-            '--'+a,
-            help=mangle_args[a],
-            default=None,
-            type=str)
+            "-" + a[0], "--" + a, help=mangle_args[a], default=None, type=str
+        )
     # return the parsed actions
     return (parser, parser.parse_args(arguments))
 
 
 def cli_main():
     parser, args = cli_args()
-    if not args.install is None:
+    if args.install is not None:
         vpm.install_package(args.install.lower())
-    elif not args.update is None:
+    elif args.update is not None:
         vpm.install_package(args.update.lower(), force=True)
-    elif not args.list is None:
+    elif args.list is not None:
         if args.list.lower() == "installed":
             vpm.list_installed()
         elif args.list.lower() == "outdated":
@@ -116,7 +104,7 @@ def cli_main():
             vpm.list_sources()
         else:
             print("unknown option")
-    elif not args.remove is None:
+    elif args.remove is not None:
         vpm.remove_package(args.remove.lower())
     else:
         print("unknown actions")

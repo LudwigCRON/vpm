@@ -1,0 +1,8 @@
+# python cache files
+*.pyc
+__pycache__
+# coverage result
+coverage
+.coverage
+# os cache file
+.DS_Store

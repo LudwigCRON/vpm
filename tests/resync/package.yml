@@ -1,5 +1,5 @@
 name: "resync"
-version: "0.0.1"
+version: "0.0.2"
 # description of the package
 description: "package with resynchronization module"
 # list of files for the design

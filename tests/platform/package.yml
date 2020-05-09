@@ -2,7 +2,7 @@ assertions: null
 constraints: null
 dependencies:
 - adc_sar = 0.0.1
-- resync = 0.0.1
+- resync
 description: ''
 designs: null
 libraries: null

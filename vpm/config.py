@@ -3,12 +3,12 @@
 
 import re
 import os
-import vpm
 import configparser
 
 from pathlib import Path
 
 DEFAULT_CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "default.ini")
+
 
 def read_config(filepath: str):
     # parse the file

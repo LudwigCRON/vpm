@@ -4,49 +4,24 @@
 import vpm
 
 
-def is_newer(pkga, pkgb):
-    return vpm.version_to_num(pkga.version) > vpm.version_to_num(pkgb.version)
-
-
-def is_newer_or_identical(pkga, pkgb):
-    return vpm.version_to_num(pkga.version) >= vpm.version_to_num(pkgb.version)
-
-
-def is_same(pkga, pkgb):
-    return vpm.version_to_num(pkga.version) == vpm.version_to_num(pkgb.version)
-
-
-def is_package_installed(p, path=None):
+def is_package_installed(p: vpm.Package, path=None):
     pkg = vpm.read_package(path)
     # check name
-    if p.name == pkg.get('name'):
-        return is_newer_or_identical(
-            vpm.Package(pkg.get('name'),'', pkg.get('version')),
-            p
-        )
-    # empty list or list of dependencies
-    lst = pkg.get("dependencies", None)
-    if lst is None:
-        lst = []
+    if p.name == pkg.name:
+        return pkg >= p
     # check newer version of a package
-    deps = [vpm.parse_pkgname(dep) for dep in lst if not dep is None]
+    deps = [vpm.parse_pkgname(dep) for dep in pkg.dependencies if dep is not None]
     for dep in deps:
-        if not dep is None and p.name == dep.name:
-            return is_newer(dep, p)
+        if dep is not None and p.name == dep.name:
+            return dep > p
     return False
 
 
-def is_package(p, path=None, identical: bool=False):
+def is_package(p: vpm.Package, path=None, identical: bool = False):
     # create package file if none
     pkg = vpm.read_package(path)
     # check name
-    if p.name == pkg.get('name') and identical:
-        return is_same(
-            vpm.Package(pkg.get('name'),'', pkg.get('version')),
-            p
-        )
-    if p.name == pkg.get('name'):
-        return is_newer_or_identical(
-            vpm.Package(pkg.get('name'),'', pkg.get('version')),
-            p
-        )
+    if p.name == pkg.name and identical:
+        return pkg == p
+    if p.name == pkg.name:
+        return pkg >= p

@@ -1,4 +1,6 @@
 
+from .package import *
+
 from .cli import *
 from .list import *
 from .check import *

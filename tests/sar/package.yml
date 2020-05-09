@@ -10,4 +10,4 @@ designs:
 constraints:
 # list of package names
 dependencies:
-  - resync
+  - resync = 0.0.1

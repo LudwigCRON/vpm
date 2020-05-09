@@ -6,9 +6,8 @@ import vpm
 
 from shutil import copyfile
 
-PACKAGE_FIELDS = ["designs", "constraints", "assertions", "models", "library", "testcases"]
 PACKAGE_DIRS = {
-    "assertions" : "MODELS_DIR",
+    "assertions": "MODELS_DIR",
     "constraints": "CONSTRAINTS_DIR",
     "designs": "DESIGNS_DIR",
     "documents": "DOCUMENTATION_DIR",
@@ -17,47 +16,23 @@ PACKAGE_DIRS = {
     "testcases": "TESTCASES_DIR",
 }
 
-def unify_package(deps):
-    ans, done = [], []
-    names = list(set([vpm.parse_pkgname(dep).name for dep in deps if dep is not None]))
-    for name in names:
-        p = [vpm.parse_pkgname(dep) for dep in deps if dep is not None and vpm.parse_pkgname(dep).name == name]
-        # duplicates detected
-        v = max(p)
-        if v.operator:
-            ans.append(
-                "%s %s %s" % (v.name, v.operator, v.version)
-            )
-        else:
-            ans.append(v.name)
-    return ans
 
-
-def register_package(p):
+def register_package(p: vpm.Package):
     pkg = vpm.read_package()
     # add dependencies
-    deps = pkg.get("dependencies")
-    if deps is None:
-        deps = []
-    if p.operator.strip():
-        deps.append(
-            "%s %s %s" % (p.name, p.operator, p.version)
-        )
-    else:
-        deps.append(p.name)
-    # filter the dependencies
-    pkg["dependencies"] = unify_package(deps)
+    pkg.dependencies.append(p)
+    # clean deps
+    pkg.uniquify_dependencies()
+    # update the db
     vpm.write_package(pkg)
 
 
 def unregister_package(p):
     pkg = vpm.read_package()
     # remove the package p from pkg
-    deps = pkg.get("dependencies")
-    if deps is None:
-        deps = []
-    new_deps = [dep for dep in deps if not vpm.parse_pkgname(dep).name == p.name]
-    pkg["dependencies"] = unify_package(new_deps)
+    pkg.dependencies = [dep for dep in pkg.dependencies if not dep.name == p.name]
+    # clean deps
+    pkg.uniquify_dependencies()
     # update the db
     vpm.write_package(pkg)
 
@@ -70,18 +45,19 @@ def dispatch_files(path=None):
     # read the package file
     pkg = vpm.read_package(path)
     # dispath files
-    for items in PACKAGE_FIELDS:
-        if pkg.get(items):
+    for attr in vpm.Package.__slots__:
+        items = getattr(pkg, items)
+        if items:
             cfg_dir = vpm.config_interp(cfg, "default", PACKAGE_DIRS[items])
-            DEST_DIR = os.path.join(os.getcwd(), cfg_dir, pkg.get("name"))
+            DEST_DIR = os.path.join(os.getcwd(), cfg_dir, pkg.name)
             os.makedirs(DEST_DIR, exist_ok=True)
-            for file in pkg.get(items):
+            for file in items:
                 copyfile(
                     os.path.join(path, file),
                     os.path.join(DEST_DIR, file)
                 )
     # return the version of the package installed
-    return vpm.Package(pkg.get("name"), '=', pkg.get("version"))
+    return pkg
 
 
 def remove_files(path=None):
@@ -92,17 +68,18 @@ def remove_files(path=None):
     # read the package file
     pkg = vpm.read_package(path)
     # dispath files
-    for items in PACKAGE_FIELDS:
-        if pkg.get(items):
+    for attr in vpm.Package.__slots__:
+        items = getattr(pkg, items)
+        if items:
             cfg_dir = vpm.config_interp(cfg, "default", PACKAGE_DIRS[items])
-            DEST_DIR = os.path.join(os.getcwd(), cfg_dir, pkg.get("name"))
-            for file in pkg.get(items):
+            DEST_DIR = os.path.join(os.getcwd(), cfg_dir, pkg.name)
+            for file in items:
                 if os.path.exists(os.path.join(DEST_DIR, file)):
                     os.remove(os.path.join(DEST_DIR, file))
             if os.path.exists(DEST_DIR):
                 os.rmdir(DEST_DIR)
     # return the version of the package installed
-    return vpm.Package(pkg.get("name"), '=', pkg.get("version"))
+    return pkg
 
 
 def check_dependencies(path=None, force: bool = False):
@@ -115,10 +92,7 @@ def check_dependencies(path=None, force: bool = False):
         pkg_file = path
     pkg = vpm.read_package(pkg_file)
     # read dependencies
-    deps = pkg.get("dependencies")
-    if deps is None:
-        deps = []
-    for dep in deps:
+    for dep in pkg.dependencies:
         install_package(dep, force)
 
 
@@ -134,7 +108,7 @@ def install_package(name: str, force: bool = False):
     # find the source
     src = [s for s in vpm.list_sources(no_print=True) if vpm.is_package(pkg, path=s)]
     if not src:
-        print(name+" is not found")
+        print("%s is not found" % name)
         return
     # check dependencies
     check_dependencies(src[0], force)
@@ -153,7 +127,7 @@ def remove_package(name: str):
     # find the source
     srcs = [s for s in vpm.list_sources(no_print=True) if vpm.is_package(pkg, path=s)]
     if not srcs:
-        print(name+" is not found")
+        print("%s is not found" % name)
         return
     # remove each files
     for src in srcs:
