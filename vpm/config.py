@@ -13,9 +13,7 @@ DEFAULT_CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "defau
 def read_config(filepath: str):
     # parse the file
     config = configparser.ConfigParser(allow_no_value=True)
-    with open(DEFAULT_CONFIG, "r+") as fp:
-        config.read_file(fp)
-    config.read([filepath])
+    config.read([DEFAULT_CONFIG, filepath])
     return config
 
 
@@ -24,6 +22,7 @@ def find_config():
     cfgs = Path(os.getcwd()).glob("**/vpm.config")
     for cfg in cfgs:
         if cfg.is_file():
+            os.environ["PLATFORM"] = os.path.dirname(cfg)
             return read_config(str(cfg))
 
 

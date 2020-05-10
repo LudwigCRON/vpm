@@ -18,6 +18,16 @@ def read_package(path: str = None):
     # check in the package file
     with open(pkg_file, "r+") as fp:
         pkg = yaml.load(fp, Loader=yaml.FullLoader)
+    # adjust file path
+    for attr in vpm.Package.__slots__:
+        if attr in ["name", "version", "description", "dependencies"]:
+            continue
+        files = pkg.get(attr, [])
+        if files:
+            pkg[attr] = [
+                os.path.abspath(
+                    os.path.join(os.path.dirname(pkg_file), file)
+                ) for file in files]
     return vpm.Package.from_dict(pkg)
 
 

@@ -6,6 +6,7 @@ import vpm
 
 from shutil import copyfile
 
+
 PACKAGE_DIRS = {
     "assertions": "MODELS_DIR",
     "constraints": "CONSTRAINTS_DIR",
@@ -37,6 +38,25 @@ def unregister_package(p):
     vpm.write_package(pkg)
 
 
+def retrieve_files(pkg_name: str = None):
+    if pkg_name is None:
+        return
+    # read the config
+    cfg = vpm.find_config()
+    # read the package
+    pkg = vpm.Package(pkg_name)
+    # find files
+    for attr in vpm.Package.__slots__:
+        if attr not in PACKAGE_DIRS:
+            continue
+        cfg_dir = vpm.config_interp(cfg, "default", PACKAGE_DIRS[attr])
+        DEST_DIR = os.path.join(os.getcwd(), cfg_dir, pkg_name)
+        if os.path.exists(DEST_DIR):
+            setattr(pkg, attr, [os.path.join(DEST_DIR, f) for f in os.listdir(DEST_DIR)])
+    # return the version of the package installed
+    return pkg
+
+
 def dispatch_files(path=None):
     if path is None or not os.path.exists(path):
         return
@@ -46,7 +66,7 @@ def dispatch_files(path=None):
     pkg = vpm.read_package(path)
     # dispath files
     for attr in vpm.Package.__slots__:
-        items = getattr(pkg, items)
+        items = getattr(pkg, attr)
         if items:
             cfg_dir = vpm.config_interp(cfg, "default", PACKAGE_DIRS[items])
             DEST_DIR = os.path.join(os.getcwd(), cfg_dir, pkg.name)
@@ -69,7 +89,7 @@ def remove_files(path=None):
     pkg = vpm.read_package(path)
     # dispath files
     for attr in vpm.Package.__slots__:
-        items = getattr(pkg, items)
+        items = getattr(pkg, attr)
         if items:
             cfg_dir = vpm.config_interp(cfg, "default", PACKAGE_DIRS[items])
             DEST_DIR = os.path.join(os.getcwd(), cfg_dir, pkg.name)

@@ -74,11 +74,22 @@ class ListTests(unittest.TestCase):
         # move in sar
         os.chdir("%s/sar" % self.tests_dir)
         pkgs = list(vpm.list_outdated(no_print=True))
-        print(pkgs)
-        assert len(pkgs) == 1
+        assert len(pkgs) == 0
 
     def test_corrupted(self):
-        self.skipTest("Not implemented yet")
+        # move in platform
+        os.chdir("%s/platform" % self.tests_dir)
+        pkgs = list(vpm.list_corrupted(no_print=True))
+        assert len(pkgs) == 1
+        assert "core.v" in pkgs[0]["designs"]
+        assert "port.v" not in pkgs[0]["designs"]
+        # move in sar
+        os.chdir("%s/sar" % self.tests_dir)
+        pkgs = list(vpm.list_corrupted(no_print=True))
+        assert len(pkgs) == 1
+        assert "core.v" not in pkgs[0]["designs"]
+        assert "port.v" not in pkgs[0]["designs"]
+        assert "edge_resync.v" in pkgs[0]["designs"]
 
 
 if __name__ == "__main__":

@@ -4,10 +4,10 @@ version: "0.0.1"
 description: "1 to 14 bits sar"
 # list of files for the design
 designs:
-  - core.v
-  - ports.v
+  - ./design/core.v
+  - ./design/ports.v
 # list of files for the constraints
 constraints:
 # list of package names
 dependencies:
-  - resync = 0.0.1
+  - resync = 0.0.2

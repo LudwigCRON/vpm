@@ -2,6 +2,12 @@
 # coding: utf-8
 
 
+import os
+import difflib
+
+from collections import defaultdict
+
+
 class Version(object):
     """
     Version of a package could either be
@@ -230,3 +236,63 @@ class Package(object):
         pkg.libraries = d.get("libraries", [])
         pkg.models = d.get("models", [])
         return pkg
+
+    @staticmethod
+    def unified_diff(pkga, pkgb, no_print: bool = False):
+        db = defaultdict(dict)
+        # for each category...
+        for category in Package.__slots__:
+            if category in ["name", "version", "description", "dependencies"]:
+                continue
+            # detect new and removed files
+            cat_a = getattr(pkga, category) if pkga else None
+            cat_b = getattr(pkgb, category) if pkgb else None
+            if cat_a is None and cat_b is None:
+                continue
+            elif cat_a is None and cat_b is not None:
+                new_files = set([os.path.basename(file) for file in cat_b])
+                removed_files = None
+                files_in_both = None
+            elif cat_a is not None and cat_b is None:
+                new_files = None
+                removed_files = set([os.path.basename(file) for file in cat_a])
+                files_in_both = None
+            else:
+                cat_a = set([os.path.basename(file) for file in cat_a])
+                cat_b = set([os.path.basename(file) for file in cat_b])
+                new_files = cat_b - cat_a
+                removed_files = cat_a - cat_b
+                files_in_both = cat_a.intersection(cat_b)
+            # list new files
+            if new_files:
+                db[category]["new"] = new_files
+                if not no_print:
+                    print("new files:")
+                    for new_file in new_files:
+                        print('\t', new_file)
+            # list removed files
+            if removed_files:
+                db[category]["removed"] = removed_files
+                if not no_print:
+                    print("removed files:")
+                    for removed_file in removed_files:
+                        print('\t', removed_file)
+            # detect diff in same files
+            if files_in_both:
+                for file in files_in_both:
+                    file_a = [f for f in getattr(pkga, category) if os.path.basename(f) == file]
+                    file_b = [f for f in getattr(pkgb, category) if os.path.basename(f) == file]
+                    with open(file_a[-1], "r+") as fp:
+                        content_a = fp.readlines()
+                    with open(file_b[-1], "r+") as fp:
+                        content_b = fp.readlines()
+                    diff = '\n'.join(difflib.unified_diff(
+                        content_a, content_b,
+                        fromfile=file_a[-1],
+                        tofile=file_b[-1]
+                    ))
+                    if diff:
+                        db[category][file] = diff
+        if db:
+            return db
+        return None
