@@ -10,7 +10,7 @@ def is_package_installed(p: vpm.Package, path=None):
     if p.name == pkg.name:
         return pkg >= p
     # check newer version of a package
-    deps = [vpm.parse_pkgname(dep) for dep in pkg.dependencies if dep is not None]
+    deps = [vpm.Package.parse_package_name(dep) for dep in pkg.dependencies if dep is not None]
     for dep in deps:
         if dep is not None and p.name == dep.name:
             return dep > p

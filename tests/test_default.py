@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+# coding: utf-8
+
+import os
+import sys
+
+vpm_module = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(vpm_module)
+
+import vpm
+import yaml
+import unittest
+
+
+class ListTests(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tests_dir = os.path.dirname(os.path.abspath(__file__))
+
+    def test_package(self):
+        pkg_file = os.path.join(self.tests_dir, "package.yml")
+        if os.path.exists(pkg_file):
+            os.remove(pkg_file)
+        vpm.default_package()
+        assert os.path.exists(pkg_file)
+        pkg = vpm.read_package(pkg_file)
+        assert pkg.name == "basic package"
+        assert pkg.version == vpm.Version("0.0.1")
+        os.remove(pkg_file)
+
+    def test_config(self):
+        config_file = os.path.join(self.tests_dir, "vpm.config")
+        if os.path.exists(config_file):
+            os.remove(config_file)
+        vpm.default_config()
+        assert os.path.exists(config_file)
+        cfg = vpm.read_config(config_file)
+        assert cfg.has_section("default")
+        assert cfg.has_section("repositories")
+        assert cfg["repositories"].get("sources") == "./"
+        os.remove(config_file)

@@ -3,6 +3,7 @@
 
 
 import os
+import re
 import difflib
 
 from collections import defaultdict
@@ -236,6 +237,15 @@ class Package(object):
         pkg.libraries = d.get("libraries", [])
         pkg.models = d.get("models", [])
         return pkg
+
+    @staticmethod
+    def parse_package_name(pkg_name: str):
+        if not isinstance(pkg_name, str):
+            return None
+        # assume <name><operator><version>
+        RE_PKG_NAME_VERSION = r"([\w\_\-]+)\s*(?:>|>=|=|<|<=)?\s*([\w\d\.\-]*)?$"
+        m = re.findall(RE_PKG_NAME_VERSION, pkg_name, flags=re.MULTILINE)
+        return Package(*m[0])
 
     @staticmethod
     def unified_diff(pkga, pkgb, no_print: bool = False):

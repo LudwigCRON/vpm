@@ -2,7 +2,6 @@
 # coding: utf-8
 
 import os
-import re
 import sys
 import vpm
 import yaml
@@ -39,41 +38,10 @@ def write_package(pkg, path: str = None):
 
 
 def get_package_path(path: str = None):
-    pkg_file = _create_req_file() if path is None else path
+    pkg_file = vpm.default_package() if path is None else path
     if os.path.isdir(pkg_file):
         pkg_file = os.path.join(pkg_file, DEFAULT_PKG)
     return pkg_file
-
-
-def parse_pkgname(name: str):
-    if not isinstance(name, str):
-        return None
-    # assume <name><operator><version>
-    RE_PKG_NAME_VERSION = r"([\w\_\-]+)\s*(?:>|>=|=|<|<=)?\s*([\w\d\.\-]*)?$"
-    m = re.findall(RE_PKG_NAME_VERSION, name, flags=re.MULTILINE)
-    return vpm.Package(*m[0])
-
-
-def _create_req_file():
-    CURRENT_FILE = os.path.join(os.getcwd(), DEFAULT_PKG)
-    if not os.path.exists(CURRENT_FILE):
-        with open(CURRENT_FILE, "w+") as fp:
-            fp.write('name: "basic package"\n')
-            fp.write('version: "0.0.1"\n')
-            fp.write("# description of the package\n")
-            fp.write('description: ""\n')
-            fp.write("# list of files for the design\n")
-            fp.write("designs:\n")
-            fp.write("# list of files for the constraints\n")
-            fp.write("constraints:\n")
-            fp.write("# files only needed for simulations\n")
-            fp.write("models:\n")
-            fp.write("# formal verification files\n")
-            fp.write("assertions:\n")
-            fp.write("libraries:\n")
-            fp.write("# list of package names\n")
-            fp.write("dependencies:\n")
-    return CURRENT_FILE
 
 
 def cli_args():
@@ -81,8 +49,9 @@ def cli_args():
     mangle_args = {
         "install": "install a package from its name and version",
         "update": "update a package from its name",
-        "list": "list all packages available or installed",
+        "list": "list all packages available/installed/outdated/corrupted",
         "remove": "remove a package",
+        "create": "package/config"
     }
     # make sys args available
     arguments = ["--" + a if a in mangle_args.keys() else a for a in sys.argv[1:]]
@@ -112,6 +81,13 @@ def cli_main():
             vpm.list_corrupted()
         elif args.list.lower() == "sources":
             vpm.list_sources()
+        else:
+            print("unknown option")
+    elif args.create is not None:
+        if args.create.lower() == "config":
+            vpm.default_config()
+        elif args.create.lower() == "package":
+            vpm.default_package()
         else:
             print("unknown option")
     elif args.remove is not None:

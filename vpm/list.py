@@ -28,7 +28,7 @@ def list_installed(no_print: bool = False):
         print("No dependencies installed")
         return []
     for dep in pkg.dependencies:
-        p = vpm.parse_pkgname(dep)
+        p = vpm.Package.parse_package_name(dep)
         if not no_print:
             print(p)
         if p:

@@ -120,7 +120,7 @@ def install_package(name: str, force: bool = False):
     if not isinstance(name, str):
         print("verify the typed package name")
         return
-    pkg = vpm.parse_pkgname(name)
+    pkg = vpm.Package.parse_package_name(name)
     # check not already installed
     if not force and vpm.is_package_installed(pkg):
         print("package %s already satisfied" % name)
@@ -143,7 +143,7 @@ def remove_package(name: str):
     if not isinstance(name, str):
         print("verify the typed package name")
         return
-    pkg = vpm.parse_pkgname(name)
+    pkg = vpm.Package.parse_package_name(name)
     # find the source
     srcs = [s for s in vpm.list_sources(no_print=True) if vpm.is_package(pkg, path=s)]
     if not srcs:
