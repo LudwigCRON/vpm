@@ -19,17 +19,26 @@ class ListTests(unittest.TestCase):
 
     def test_sources(self):
         # move into platform
+        # have resync + sar + itself
         os.chdir("%s/platform" % self.tests_dir)
-        srcs = list(vpm.list_sources(no_print=True))
+        srcs = list(vpm.list_sources(no_print=False))
         assert len(srcs) == 3
         # move into resync
+        # no vpm.config => no sources of repo
         os.chdir("%s/resync" % self.tests_dir)
-        srcs = list(vpm.list_sources(no_print=True))
+        srcs = list(vpm.list_sources(no_print=False))
         assert len(srcs) == 0
         # move into sar
+        # have resync + itself
         os.chdir("%s/sar" % self.tests_dir)
-        srcs = list(vpm.list_sources(no_print=True))
+        srcs = list(vpm.list_sources(no_print=False))
         assert len(srcs) == 2
+        # move into pkg_wo_repositories
+        # check at least have itself
+        os.chdir("%s/pkg_wo_repositories" % self.tests_dir)
+        srcs = list(vpm.list_sources(no_print=False))
+        assert len(srcs) == 1
+        assert srcs[0] == "./"
 
     def test_installed(self):
         # move into platform
@@ -44,7 +53,7 @@ class ListTests(unittest.TestCase):
         assert len(pkgs) == 0
         # move into sar
         os.chdir("%s/sar" % self.tests_dir)
-        pkgs = list(vpm.list_installed(no_print=True))
+        pkgs = list(vpm.list_installed(no_print=False))
         assert len(pkgs) == 1
         assert pkgs[0].name == "resync"
 
@@ -62,7 +71,7 @@ class ListTests(unittest.TestCase):
         assert len(pkgs) == 0
         # move in sar
         os.chdir("%s/sar" % self.tests_dir)
-        pkgs = list(vpm.list_available(no_print=True))
+        pkgs = list(vpm.list_available(no_print=False))
         assert len(pkgs) == 2
 
     def test_outdated(self):
@@ -90,6 +99,19 @@ class ListTests(unittest.TestCase):
         assert "core.v" not in pkgs[0]["designs"]
         assert "port.v" not in pkgs[0]["designs"]
         assert "edge_resync.v" in pkgs[0]["designs"]
+        # move in new_files_in_ip
+        os.chdir("%s/new_files_in_ip" % self.tests_dir)
+        pkgs = list(vpm.list_corrupted(no_print=False))
+        print(pkgs)
+        assert len(pkgs) == 1
+        assert "toggle_resync.v" in pkgs[0]["designs"]["new"]
+        # move in rem_files_in_ip
+        os.chdir("%s/rem_files_in_ip" % self.tests_dir)
+        pkgs = list(vpm.list_corrupted(no_print=True))
+        print(pkgs)
+        assert len(pkgs) == 1
+        assert "toggle_resync.v" in pkgs[0]["designs"]["new"]
+        assert "edge_resync.v" in pkgs[0]["designs"]["removed"]
 
 
 if __name__ == "__main__":

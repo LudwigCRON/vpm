@@ -72,7 +72,7 @@ class PackageTests(unittest.TestCase):
 
     def test_comparison(self):
         assert self.a == self.b
-        assert self.a != self.m
+        assert self.a == self.m
         assert self.c >= self.d
         assert not self.c > self.b
         assert not self.b > self.c
@@ -85,6 +85,13 @@ class PackageTests(unittest.TestCase):
         assert self.m >= self.j
         assert not self.m < self.n
         assert not self.m <= self.b
+        assert self.n == "1.B.7"
+        assert self.g != 1.0
+        assert self.e == 1.0
+        assert self.e == 1
+        assert self.i <= self.g
+        assert self.e <= self.g
+        assert not self.d < self.c
 
     def test_pkg_comparison(self):
         pkg_A = vpm.Package("youpi", "0.0.1")

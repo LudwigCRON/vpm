@@ -1,0 +1,11 @@
+name: "new_files_in_ip"
+version: "0.0.3"
+# description of the package
+description: "resync"
+# list of files for the design
+designs:
+# list of files for the constraints
+constraints:
+# list of package names
+dependencies:
+  - resync = 0.0.2

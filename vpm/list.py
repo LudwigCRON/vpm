@@ -72,6 +72,6 @@ def list_corrupted(no_print: bool = False):
             # print("dep: %s\tcandidate: %s" % (dep, candidate))
             pkg_inst = vpm.retrieve_files(dep.name)
             pkg_inst.version = dep.version
-            pkg_diff = vpm.Package.unified_diff(pkg_inst, candidate)
+            pkg_diff = vpm.Package.unified_diff(candidate, pkg_inst)
             if pkg_diff:
                 yield pkg_diff

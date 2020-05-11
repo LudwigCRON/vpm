@@ -12,7 +12,7 @@ import yaml
 import unittest
 
 
-class ListTests(unittest.TestCase):
+class DefaultTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -33,10 +33,28 @@ class ListTests(unittest.TestCase):
         config_file = os.path.join(self.tests_dir, "vpm.config")
         if os.path.exists(config_file):
             os.remove(config_file)
+        # create basic version
         vpm.default_config()
         assert os.path.exists(config_file)
         cfg = vpm.read_config(config_file)
         assert cfg.has_section("default")
+        assert cfg.has_section("repositories")
+        assert cfg["repositories"].get("sources") == "./"
+        os.remove(config_file)
+        # create complete version
+        vpm.default_config(complete=True)
+        assert os.path.exists(config_file)
+        cfg = vpm.read_config(config_file)
+        assert cfg.has_section("default")
+        assert cfg["default"].get("MODELS_DIR") == "${PLATFORM}/model"
+        assert cfg.has_section("repositories")
+        assert cfg["repositories"].get("sources") == "./"
+        # check already exists is not overwritten
+        vpm.default_config()
+        assert os.path.exists(config_file)
+        cfg = vpm.read_config(config_file)
+        assert cfg.has_section("default")
+        assert cfg["default"].get("MODELS_DIR") == "${PLATFORM}/model"
         assert cfg.has_section("repositories")
         assert cfg["repositories"].get("sources") == "./"
         os.remove(config_file)

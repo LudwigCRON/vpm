@@ -41,11 +41,10 @@ class Version(object):
                     # to get good comparison results
                     for attribute in self.__slots__:
                         v = getattr(self, attribute)
-                        if isinstance(v, str):
-                            if all([c in "0123456789" for c in v.strip()]):
-                                setattr(self, attribute, int(v, 10))
-                            else:
-                                setattr(self, attribute, v.strip())
+                        if all([c in "0123456789" for c in v.strip()]):
+                            setattr(self, attribute, int(v, 10))
+                        else:
+                            setattr(self, attribute, v.strip())
                     self.value = "%s.%s.%s" % (self.major, self.minor, self.release)
         elif isinstance(value, int):
             self.major = value
@@ -65,12 +64,20 @@ class Version(object):
 
     def __eq__(self, version):
         if isinstance(version, Version):
-            return (self.value == version.value)
+            if isinstance(version.value, type(self.value)):
+                return self.value == version.value
+            return (self.major == version.major) and \
+                   (self.minor == version.minor) and \
+                   (self.release == version.release)
         return self == Version(version)
 
     def __ne__(self, version):
         if isinstance(version, Version):
-            return (self.value != version.value)
+            if isinstance(version.value, type(self.value)):
+                return self.value != version.value
+            return (self.major != version.major) or \
+                   (self.minor != version.minor) or \
+                   (self.release != version.release)
         return self != Version(version)
 
     def __gt__(self, version):
@@ -260,18 +267,18 @@ class Package(object):
             if cat_a is None and cat_b is None:
                 continue
             elif cat_a is None and cat_b is not None:
-                new_files = set([os.path.basename(file) for file in cat_b])
+                new_files = list(set([os.path.basename(file) for file in cat_b]))
                 removed_files = None
                 files_in_both = None
             elif cat_a is not None and cat_b is None:
                 new_files = None
-                removed_files = set([os.path.basename(file) for file in cat_a])
+                removed_files = list(set([os.path.basename(file) for file in cat_a]))
                 files_in_both = None
             else:
                 cat_a = set([os.path.basename(file) for file in cat_a])
                 cat_b = set([os.path.basename(file) for file in cat_b])
-                new_files = cat_b - cat_a
-                removed_files = cat_a - cat_b
+                new_files = list(cat_b - cat_a)
+                removed_files = list(cat_a - cat_b)
                 files_in_both = cat_a.intersection(cat_b)
             # list new files
             if new_files:

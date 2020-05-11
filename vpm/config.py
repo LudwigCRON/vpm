@@ -21,9 +21,8 @@ def find_config():
     # find a vpm.config file in the current directory tree
     cfgs = Path(os.getcwd()).glob("**/vpm.config")
     for cfg in cfgs:
-        if cfg.is_file():
-            os.environ["PLATFORM"] = os.path.dirname(cfg)
-            return read_config(str(cfg))
+        os.environ["PLATFORM"] = os.path.dirname(cfg)
+        return read_config(str(cfg))
 
 
 def config_interp(cfg, section, key):
