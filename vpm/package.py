@@ -6,7 +6,7 @@ import os
 import re
 import difflib
 
-from collections import defaultdict
+from collections import defaultdict, Iterable
 
 
 class Version(object):
@@ -175,6 +175,9 @@ class Version(object):
     def __str__(self):
         return str(self.value)
 
+    def __repr__(self):
+        return {getattr(self, attr) for attr in Version.__slots__}
+
 
 class Package(object):
     __slots__ = [
@@ -233,16 +236,38 @@ class Package(object):
     def __str__(self):
         return "%s %s" % (self.name, self.version)
 
+    def to_dict(self):
+        p = {}
+        for attr in self.__slots__:
+            values = getattr(self, attr)
+            if attr == "dependencies":
+                p[attr] = [str(v) for v in values]
+            elif isinstance(values, list):
+                p[attr] = [v.to_dict() if "to_dict" in dir(v) else v for v in values]
+            elif isinstance(values, dict):
+                p[attr] = {i: v.to_dict() if "to_dict" in dir(v) else v for i, v in values.items()}
+            elif "to_dict" in dir(values):
+                p[attr] = values.to_dict()
+            elif isinstance(values, Version):
+                p[attr] = str(values)
+            else:
+                p[attr] = values
+        return p
+
     @staticmethod
     def from_dict(d):
         pkg = Package(d.get("name"), d.get("version"))
-        pkg.assertions = d.get("assertions", [])
-        pkg.constraints = d.get("constraints", [])
-        pkg.dependencies = d.get("dependencies", [])
+        pkg.assertions = d.get("assertions") or []
+        pkg.constraints = d.get("constraints") or []
         pkg.description = d.get("description", "")
-        pkg.designs = d.get("designs", [])
-        pkg.libraries = d.get("libraries", [])
-        pkg.models = d.get("models", [])
+        pkg.designs = d.get("designs") or []
+        pkg.libraries = d.get("libraries") or []
+        pkg.models = d.get("models") or []
+        # transform dependencies into package
+        deps = d.get("dependencies") or []
+        pkg.dependencies = [
+            Package.parse_package_name(dep) if isinstance(dep, str) else dep for dep in deps
+        ]
         return pkg
 
     @staticmethod

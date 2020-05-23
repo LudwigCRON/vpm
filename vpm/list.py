@@ -28,11 +28,9 @@ def list_installed(no_print: bool = False):
         print("No dependencies installed")
         return []
     for dep in pkg.dependencies:
-        p = vpm.Package.parse_package_name(dep)
         if not no_print:
-            print(p)
-        if p:
-            yield p
+            print(dep)
+        yield dep
 
 
 def list_available(no_print: bool = False):
@@ -73,5 +71,4 @@ def list_corrupted(no_print: bool = False):
             pkg_inst = vpm.retrieve_files(dep.name)
             pkg_inst.version = dep.version
             pkg_diff = vpm.Package.unified_diff(candidate, pkg_inst)
-            if pkg_diff:
-                yield pkg_diff
+            yield pkg_diff

@@ -17,6 +17,13 @@ class ListTests(unittest.TestCase):
     def setUpClass(cls):
         cls.tests_dir = os.path.dirname(os.path.abspath(__file__))
 
+    def setUp(self):
+        sys.stdout, sys.stderr = None, None
+
+    def tearDown(self):
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+
     def test_sources(self):
         # move into platform
         # have resync + sar + itself
@@ -102,13 +109,11 @@ class ListTests(unittest.TestCase):
         # move in new_files_in_ip
         os.chdir("%s/new_files_in_ip" % self.tests_dir)
         pkgs = list(vpm.list_corrupted(no_print=False))
-        print(pkgs)
         assert len(pkgs) == 1
         assert "toggle_resync.v" in pkgs[0]["designs"]["new"]
         # move in rem_files_in_ip
         os.chdir("%s/rem_files_in_ip" % self.tests_dir)
         pkgs = list(vpm.list_corrupted(no_print=True))
-        print(pkgs)
         assert len(pkgs) == 1
         assert "toggle_resync.v" in pkgs[0]["designs"]["new"]
         assert "edge_resync.v" in pkgs[0]["designs"]["removed"]

@@ -8,7 +8,7 @@ def default_package():
     CURRENT_FILE = os.path.join(os.getcwd(), "package.yml")
     if not os.path.exists(CURRENT_FILE):
         with open(CURRENT_FILE, "w+") as fp:
-            fp.write('name: "basic package"\n')
+            fp.write('name: "basic_package"\n')
             fp.write('version: "0.0.1"\n')
             fp.write("# description of the package\n")
             fp.write('description: ""\n')

@@ -34,7 +34,7 @@ def write_package(pkg, path: str = None):
     # create package file if none
     pkg_file = get_package_path(path)
     with open(pkg_file, "w+") as fp:
-        yaml.dump(pkg, fp)
+        yaml.dump(pkg.to_dict(), fp)
 
 
 def get_package_path(path: str = None):
@@ -82,18 +82,18 @@ def cli_main():
         elif args.list.lower() == "sources":
             vpm.list_sources()
         else:
-            print("unknown option")
+            print("unknown option", file=sys.stderr)
     elif args.create is not None:
         if args.create.lower() == "config":
             vpm.default_config()
         elif args.create.lower() == "package":
             vpm.default_package()
         else:
-            print("unknown option")
+            print("unknown option", file=sys.stderr)
     elif args.remove is not None:
         vpm.remove_package(args.remove.lower())
     else:
-        print("unknown actions")
+        print("unknown actions", file=sys.stderr)
         parser.print_help()
         exit(1)
     exit(0)

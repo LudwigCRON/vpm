@@ -39,8 +39,6 @@ def unregister_package(p):
 
 
 def retrieve_files(pkg_name: str = None):
-    if pkg_name is None:
-        return
     # read the config
     cfg = vpm.find_config()
     # read the package
@@ -57,9 +55,9 @@ def retrieve_files(pkg_name: str = None):
     return pkg
 
 
-def dispatch_files(path=None):
+def dispatch_files(path: str = None):
     if path is None or not os.path.exists(path):
-        return
+        return None
     # read the config
     cfg = vpm.find_config()
     # read the package file
@@ -67,22 +65,22 @@ def dispatch_files(path=None):
     # dispath files
     for attr in vpm.Package.__slots__:
         items = getattr(pkg, attr)
-        if items:
-            cfg_dir = vpm.config_interp(cfg, "default", PACKAGE_DIRS[items])
+        if items and attr in PACKAGE_DIRS:
+            cfg_dir = vpm.config_interp(cfg, "default", PACKAGE_DIRS[attr])
             DEST_DIR = os.path.join(os.getcwd(), cfg_dir, pkg.name)
             os.makedirs(DEST_DIR, exist_ok=True)
             for file in items:
                 copyfile(
-                    os.path.join(path, file),
-                    os.path.join(DEST_DIR, file)
+                    file,
+                    os.path.join(DEST_DIR, os.path.basename(file))
                 )
     # return the version of the package installed
     return pkg
 
 
-def remove_files(path=None):
+def remove_files(path: str = None):
     if path is None or not os.path.exists(path):
-        return
+        return None
     # read the config
     cfg = vpm.find_config()
     # read the package file
@@ -90,46 +88,46 @@ def remove_files(path=None):
     # dispath files
     for attr in vpm.Package.__slots__:
         items = getattr(pkg, attr)
-        if items:
-            cfg_dir = vpm.config_interp(cfg, "default", PACKAGE_DIRS[items])
+        if items and attr in PACKAGE_DIRS:
+            cfg_dir = vpm.config_interp(cfg, "default", PACKAGE_DIRS[attr])
             DEST_DIR = os.path.join(os.getcwd(), cfg_dir, pkg.name)
+            # remove all files
             for file in items:
-                if os.path.exists(os.path.join(DEST_DIR, file)):
-                    os.remove(os.path.join(DEST_DIR, file))
+                file_path = os.path.join(DEST_DIR, os.path.basename(file))
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+            # once files removed, remove the folder
             if os.path.exists(DEST_DIR):
                 os.rmdir(DEST_DIR)
     # return the version of the package installed
     return pkg
 
 
-def check_dependencies(path=None, force: bool = False):
+def check_dependencies(path: str = None, force: bool = False):
     if path is None or not os.path.exists(path):
-        return
+        return None
     # read the package file
-    if os.path.isdir(path):
-        pkg_file = os.path.join(path, vpm.DEFAULT_PKG)
-    else:
-        pkg_file = path
+    pkg_file = os.path.join(path, vpm.DEFAULT_PKG) if os.path.isdir(path) else path
     pkg = vpm.read_package(pkg_file)
     # read dependencies
     for dep in pkg.dependencies:
-        install_package(dep, force)
+        install_package(str(dep), force)
 
 
 def install_package(name: str, force: bool = False):
     if not isinstance(name, str):
         print("verify the typed package name")
-        return
+        return None
     pkg = vpm.Package.parse_package_name(name)
     # check not already installed
     if not force and vpm.is_package_installed(pkg):
         print("package %s already satisfied" % name)
-        return
+        return None
     # find the source
     src = [s for s in vpm.list_sources(no_print=True) if vpm.is_package(pkg, path=s)]
     if not src:
         print("%s is not found" % name)
-        return
+        return None
     # check dependencies
     check_dependencies(src[0], force)
     # download sources
@@ -142,13 +140,13 @@ def install_package(name: str, force: bool = False):
 def remove_package(name: str):
     if not isinstance(name, str):
         print("verify the typed package name")
-        return
+        return None
     pkg = vpm.Package.parse_package_name(name)
     # find the source
     srcs = [s for s in vpm.list_sources(no_print=True) if vpm.is_package(pkg, path=s)]
     if not srcs:
         print("%s is not found" % name)
-        return
+        return None
     # remove each files
     for src in srcs:
         remove_files(src)

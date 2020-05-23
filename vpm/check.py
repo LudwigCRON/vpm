@@ -4,20 +4,19 @@
 import vpm
 
 
-def is_package_installed(p: vpm.Package, path=None):
+def is_package_installed(p: vpm.Package, path: str = None):
     pkg = vpm.read_package(path)
     # check name
     if p.name == pkg.name:
         return pkg >= p
     # check newer version of a package
-    deps = [vpm.Package.parse_package_name(dep) for dep in pkg.dependencies if dep is not None]
-    for dep in deps:
+    for dep in pkg.dependencies:
         if dep is not None and p.name == dep.name:
-            return dep > p
+            return dep >= p
     return False
 
 
-def is_package(p: vpm.Package, path=None, identical: bool = False):
+def is_package(p: vpm.Package, path: str = None, identical: bool = False):
     # create package file if none
     pkg = vpm.read_package(path)
     # check name
