@@ -1,3 +1,8 @@
+![Python package](https://github.com/LudwigCRON/vpm/workflows/Python%20package/badge.svg)
+![Python versions](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7%20%7C%203.8-blue)
+![issues](https://img.shields.io/github/issues/LudwigCRON/vpm)
+![activity](https://img.shields.io/github/last-commit/LudwigCRON/vpm)
+
 # Verilog Package Manager (vpm)
 
 The purpose of VPM is to manage a verilog project. In a project, keeping track of IP versions is a challenging task.
