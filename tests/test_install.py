@@ -43,14 +43,9 @@ class DefaultTests(unittest.TestCase):
     def setUpClass(cls):
         cls.tests_dir = os.path.dirname(os.path.abspath(__file__))
         # remove directory
-        try:
+        if os.path.exists(os.path.join(cls.tests_dir, "empty_platform/package.yml")):
             os.remove(os.path.join(cls.tests_dir, "empty_platform/package.yml"))
-        except FileNotFoundError:
-            pass
-        try:
-            shutil.rmtree(os.path.join(cls.tests_dir, "empty_platform/design"))
-        except FileNotFoundError:
-            pass
+            shutil.rmtree(os.path.join(cls.tests_dir, "empty_platform/design"), ignore_errors=True)
 
     @staticmethod
     def exact_list(lista: list, refs: list):
@@ -214,7 +209,31 @@ class DefaultTests(unittest.TestCase):
     def test_installed(self):
         # move into empty_platform
         os.chdir("%s/empty_platform" % self.tests_dir)
-        assert not vpm.is_package_installed(vpm.Package.parse_package_name("sar"))
-        assert vpm.is_package_installed(vpm.Package.parse_package_name("basic_package"))
-        assert vpm.is_package_installed(vpm.Package.parse_package_name("resync"))
-        assert vpm.is_package_installed(vpm.Package.parse_package_name("adc_sar"))
+        # just check there is a package called * do not care of the version so add -1
+        assert not vpm.is_package_installed(vpm.Package.parse_package_name("sar -1"))
+        assert vpm.is_package_installed(vpm.Package.parse_package_name("basic_package -1"))
+        assert vpm.is_package_installed(vpm.Package.parse_package_name("resync -1"))
+        assert vpm.is_package_installed(vpm.Package.parse_package_name("adc_sar -1"))
+
+    @ordered
+    def test_update(self):
+        # move into outdated
+        os.chdir("%s/outdated" % self.tests_dir)
+        # installed outdated version
+        pkg01 = vpm.Package.parse_package_name("resync 0.0.1")
+        assert vpm.is_package_installed(pkg01)
+        # latest version
+        pkg02 = vpm.Package.parse_package_name("resync 0.0.2")
+        assert not vpm.is_package_installed(pkg02)
+        assert not vpm.is_package_installed(vpm.Package.parse_package_name("resync"))
+        vpm.install_package("resync")
+        assert vpm.is_package_installed(pkg02)
+        # still make it outdated
+        with open("./package.yml", "r") as fp:
+            data = fp.readlines()
+        with open("./package.yml", "w+") as fp:
+            for line in data:
+                if "resync" in line:
+                    fp.write("- resync 0.0.1\n")
+                else:
+                    fp.write(line)

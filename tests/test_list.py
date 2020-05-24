@@ -85,12 +85,16 @@ class ListTests(unittest.TestCase):
         # move in platform
         os.chdir("%s/platform" % self.tests_dir)
         pkgs = list(vpm.list_outdated(no_print=True))
-        assert len(pkgs) == 1
-        assert pkgs[0].name == "resync"
+        assert len(pkgs) == 0
         # move in sar
         os.chdir("%s/sar" % self.tests_dir)
         pkgs = list(vpm.list_outdated(no_print=True))
         assert len(pkgs) == 0
+        # move in outdated
+        os.chdir("%s/outdated" % self.tests_dir)
+        pkgs = list(vpm.list_outdated(no_print=True))
+        assert len(pkgs) == 1
+        assert pkgs[0].name == "resync"
 
     def test_corrupted(self):
         # move in platform
@@ -106,6 +110,10 @@ class ListTests(unittest.TestCase):
         assert "core.v" not in pkgs[0]["designs"]
         assert "port.v" not in pkgs[0]["designs"]
         assert "edge_resync.v" in pkgs[0]["designs"]
+        # move in outdated
+        os.chdir("%s/outdated" % self.tests_dir)
+        pkgs = list(vpm.list_corrupted(no_print=True))
+        assert len(pkgs) == 0
         # move in new_files_in_ip
         os.chdir("%s/new_files_in_ip" % self.tests_dir)
         pkgs = list(vpm.list_corrupted(no_print=False))
@@ -117,7 +125,3 @@ class ListTests(unittest.TestCase):
         assert len(pkgs) == 1
         assert "toggle_resync.v" in pkgs[0]["designs"]["new"]
         assert "edge_resync.v" in pkgs[0]["designs"]["removed"]
-
-
-if __name__ == "__main__":
-    unittest.main()

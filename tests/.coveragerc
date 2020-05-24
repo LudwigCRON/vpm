@@ -2,6 +2,7 @@
 branch = True
 omit = 
     */site-packages/yaml/*.py
+    */vpm/cli.py
 
 [report]
 ignore_errors = True

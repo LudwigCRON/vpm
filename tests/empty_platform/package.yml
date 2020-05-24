@@ -1,0 +1,11 @@
+assertions: []
+constraints: []
+dependencies:
+- resync 0.0.2
+- adc_sar 0.0.1
+description: ''
+designs: []
+libraries: []
+models: []
+name: basic_package
+version: 0.0.1

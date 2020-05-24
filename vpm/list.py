@@ -9,10 +9,6 @@ def list_sources(no_print: bool = False):
     cfg = vpm.find_config()
     if not cfg:
         return []
-    # expect sources of repositories
-    if not cfg.has_section("repositories"):
-        print("No repository's source defined")
-        return []
     # return each sources
     srcs = cfg["repositories"].get("sources", "").split()
     for src in srcs:

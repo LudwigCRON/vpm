@@ -27,8 +27,6 @@ class DefaultTests(unittest.TestCase):
 
     def test_package(self):
         pkg_file = os.path.join(self.tests_dir, "package.yml")
-        if os.path.exists(pkg_file):
-            os.remove(pkg_file)
         vpm.default_package()
         assert os.path.exists(pkg_file)
         pkg = vpm.read_package(pkg_file)
@@ -38,8 +36,6 @@ class DefaultTests(unittest.TestCase):
 
     def test_config(self):
         config_file = os.path.join(self.tests_dir, "vpm.config")
-        if os.path.exists(config_file):
-            os.remove(config_file)
         # create basic version
         vpm.default_config()
         assert os.path.exists(config_file)

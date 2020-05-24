@@ -71,11 +71,16 @@ class PackageTests(unittest.TestCase):
         assert self.n.is_mmr()
 
     def test_comparison(self):
+        # simplification of " ", "", None is the same
+        # a, b, m are latest versions
         assert self.a == self.b
         assert self.a == self.m
         assert self.c >= self.d
+        assert self.a >= self.b
+        assert self.c <= self.b
+        assert not self.b <= self.c
         assert not self.c > self.b
-        assert not self.b > self.c
+        assert self.b > self.c
         assert not self.c == self.b
         assert self.f < self.e
         assert self.e != self.g
@@ -83,9 +88,18 @@ class PackageTests(unittest.TestCase):
         assert self.j < self.n
         assert self.m > self.d
         assert self.m >= self.j
+        assert self.m > self.l
+        assert self.l <= self.m
+        assert not self.l >= self.m
+        assert self.f >= self.h
+        assert self.f > self.h
         assert not self.m < self.n
-        assert not self.m <= self.b
+        assert self.m <= self.b
         assert self.n == "1.B.7"
+        assert self.n >= "1.B.6"
+        assert self.n < "1.B.8"
+        assert self.n <= "1.B.7"
+        assert not self.n > ""
         assert self.g != 1.0
         assert self.e == 1.0
         assert self.e == 1
@@ -97,15 +111,19 @@ class PackageTests(unittest.TestCase):
         pkg_A = vpm.Package("youpi", "0.0.1")
         pkg_B = vpm.Package("tada", "0.0.1")
         pkg_C = vpm.Package("youpi ", "0.0.2")
+        pkg_D = vpm.Package("youpi")
         assert pkg_A.name == "youpi"
         assert pkg_B.name == "tada"
         assert pkg_C.name == "youpi"
         assert pkg_A.version == pkg_B.version
         assert pkg_A < pkg_C
+        assert pkg_A <= pkg_C
         assert pkg_C > pkg_A
+        assert pkg_C >= pkg_A
         assert pkg_B != pkg_A
         assert pkg_C != pkg_B
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert not pkg_D < pkg_A
+        assert not pkg_D >= pkg_B
+        assert pkg_D >= pkg_C
+        assert not pkg_D <= pkg_C
+        assert pkg_D >= pkg_D

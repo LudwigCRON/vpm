@@ -87,19 +87,18 @@ class Version(object):
                     return False
                 if self.major > version.major:
                     return True
-                elif self.minor is None or version.minor is None:
+                if self.minor is None or version.minor is None:
                     return False
-                elif self.minor > version.minor:
+                if self.minor > version.minor:
                     return True
-                elif self.release is None or version.release is None:
+                if self.release is None or version.release is None:
                     return False
-                else:
-                    return self.release > version.release
-            if self.value is None or version.value is None:
+                return self.release > version.release
+            # always latest value if '' or None
+            if self.value in ('', None):
+                return version.value not in ('', None)
+            if version.value in ('', None):
                 return False
-            # always latest value if ''
-            if self.value == '':
-                return True
             return self.value > version.value
         return self > Version(version)
 
@@ -108,21 +107,20 @@ class Version(object):
             if self.is_mmr() and version.is_mmr():
                 if self.major is None or version.major is None:
                     return False
-                if self.major >= version.major:
+                if self.major > version.major:
                     return True
-                elif self.minor is None or version.minor is None:
+                if self.minor is None or version.minor is None:
                     return False
-                elif self.minor >= version.minor:
+                if self.minor > version.minor:
                     return True
-                elif self.release is None or version.release is None:
+                if self.release is None or version.release is None:
                     return False
-                else:
-                    return self.release >= version.release
-            if self.value is None or version.value is None:
-                return False
-            # always latest value if ''
-            if self.value == '':
+                return self.release >= version.release
+            # always latest value if '' or None
+            if self.value in ('', None):
                 return True
+            if version.value in ('', None):
+                return self.value in ('', None)
             return self.value >= version.value
         return self >= Version(version)
 
@@ -131,21 +129,20 @@ class Version(object):
             if self.is_mmr() and version.is_mmr():
                 if self.major is None or version.major is None:
                     return False
-                if self.major <= version.major:
+                if self.major < version.major:
                     return True
-                elif self.minor is None or version.minor is None:
+                if self.minor is None or version.minor is None:
                     return False
-                elif self.minor <= version.minor:
+                if self.minor < version.minor:
                     return True
-                elif self.release is None or version.release is None:
+                if self.release is None or version.release is None:
                     return False
-                else:
-                    return self.release <= version.release
-            if self.value is None or version.value is None:
-                return False
-            # always latest value if ''
-            if self.value == '':
-                return False
+                return self.release <= version.release
+            # always latest value if '' or None
+            if version.value in ('', None):
+                return True
+            if self.value in ('', None):
+                return version.value in ('', None)
             return self.value <= version.value
         return self <= Version(version)
 
@@ -156,27 +153,23 @@ class Version(object):
                     return False
                 if self.major < version.major:
                     return True
-                elif self.minor is None or version.minor is None:
+                if self.minor is None or version.minor is None:
                     return False
-                elif self.minor < version.minor:
+                if self.minor < version.minor:
                     return True
-                elif self.release is None or version.release is None:
+                if self.release is None or version.release is None:
                     return False
-                else:
-                    return self.release < version.release
-            if self.value is None or version.value is None:
+                return self.release < version.release
+            # always latest value if '' or None
+            if self.value in ('', None):
                 return False
-            # always latest value if ''
-            if self.value == '':
-                return False
+            if version.value in ('', None):
+                return self.value not in ('', None)
             return self.value < version.value
         return self < Version(version)
 
     def __str__(self):
         return str(self.value)
-
-    def __repr__(self):
-        return {getattr(self, attr) for attr in Version.__slots__}
 
 
 class Package(object):
@@ -213,16 +206,20 @@ class Package(object):
         return (self.name != pkg.name) or (self.version != pkg.version)
 
     def __gt__(self, pkg):
-        return (self.name == pkg.name) and (self.version > pkg.version)
+        return (self.name == pkg.name) and \
+               (self.version > pkg.version)
 
     def __ge__(self, pkg):
-        return (self.name == pkg.name) and (self.version >= pkg.version)
+        return (self.name == pkg.name) and \
+               (self.version >= pkg.version)
 
     def __le__(self, pkg):
-        return (self.name == pkg.name) and (self.version <= pkg.version)
+        return (self.name == pkg.name) and \
+               (self.version <= pkg.version)
 
     def __lt__(self, pkg):
-        return (self.name == pkg.name) and (self.version < pkg.version)
+        return (self.name == pkg.name) and \
+               (self.version < pkg.version)
 
     def uniquify_dependencies(self):
         d = {}
