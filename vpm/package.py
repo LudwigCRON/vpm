@@ -6,7 +6,7 @@ import os
 import re
 import difflib
 
-from collections import defaultdict, Iterable
+from collections import defaultdict
 
 
 class Version(object):
@@ -242,7 +242,8 @@ class Package(object):
             elif isinstance(values, list):
                 p[attr] = [v.to_dict() if "to_dict" in dir(v) else v for v in values]
             elif isinstance(values, dict):
-                p[attr] = {i: v.to_dict() if "to_dict" in dir(v) else v for i, v in values.items()}
+                p[attr] = {i: v.to_dict() if "to_dict" in dir(v) else v
+                           for i, v in values.items()}
             elif "to_dict" in dir(values):
                 p[attr] = values.to_dict()
             elif isinstance(values, Version):
@@ -302,6 +303,8 @@ class Package(object):
                 new_files = list(cat_b - cat_a)
                 removed_files = list(cat_a - cat_b)
                 files_in_both = cat_a.intersection(cat_b)
+            cat_a = getattr(pkga, category)
+            cat_b = getattr(pkgb, category)
             # list new files
             if new_files:
                 db[category]["new"] = new_files
@@ -319,8 +322,8 @@ class Package(object):
             # detect diff in same files
             if files_in_both:
                 for file in files_in_both:
-                    file_a = [f for f in getattr(pkga, category) if os.path.basename(f) == file]
-                    file_b = [f for f in getattr(pkgb, category) if os.path.basename(f) == file]
+                    file_a = [f for f in cat_a if os.path.basename(f) == file]
+                    file_b = [f for f in cat_b if os.path.basename(f) == file]
                     with open(file_a[-1], "r+") as fp:
                         content_a = fp.readlines()
                     with open(file_b[-1], "r+") as fp:

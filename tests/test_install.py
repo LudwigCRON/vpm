@@ -3,16 +3,15 @@
 
 import os
 import sys
+import shutil
+import unittest
+
+from pathlib import Path
 
 vpm_module = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(vpm_module)
 
 import vpm
-import yaml
-import shutil
-import unittest
-
-from pathlib import Path
 
 
 def make_orderer():
@@ -33,6 +32,7 @@ def make_orderer():
 
     return ordered, compare
 
+
 ordered, compare = make_orderer()
 unittest.defaultTestLoader.sortTestMethodsUsing = compare
 
@@ -45,7 +45,8 @@ class DefaultTests(unittest.TestCase):
         # remove directory
         if os.path.exists(os.path.join(cls.tests_dir, "empty_platform/package.yml")):
             os.remove(os.path.join(cls.tests_dir, "empty_platform/package.yml"))
-            shutil.rmtree(os.path.join(cls.tests_dir, "empty_platform/design"), ignore_errors=True)
+            shutil.rmtree(os.path.join(cls.tests_dir, "empty_platform/design"),
+                          ignore_errors=True)
 
     @staticmethod
     def exact_list(lista: list, refs: list):
@@ -128,7 +129,6 @@ class DefaultTests(unittest.TestCase):
             "./design/adc_sar/core.v",
             "./design/adc_sar/ports.v"
         ], os.getcwd())
-
 
     @ordered
     def test_remove(self):

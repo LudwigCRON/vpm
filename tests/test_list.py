@@ -3,12 +3,12 @@
 
 import os
 import sys
+import unittest
 
 vpm_module = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(vpm_module)
 
 import vpm
-import unittest
 
 
 class ListTests(unittest.TestCase):
