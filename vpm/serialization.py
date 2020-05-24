@@ -9,12 +9,16 @@ import yaml
 DEFAULT_PKG = "package.yml"
 
 
-def read_package(path: str = None):
-    # create package file if none
-    pkg_file = get_package_path(path)
-    # check in the package file
-    with open(pkg_file, "r+") as fp:
-        pkg = yaml.load(fp, Loader=yaml.FullLoader)
+def read_package(path: str = None, content: str = None):
+    if content is None:
+        # create package file if none
+        pkg_file = get_package_path(path)
+        # check in the package file
+        with open(pkg_file, "r+") as fp:
+            pkg = yaml.load(fp, Loader=yaml.FullLoader)
+    else:
+        pkg_file = path
+        pkg = yaml.load(content, Loader=yaml.FullLoader)
     # adjust file path
     for attr in vpm.Package.__slots__:
         if attr in ["name", "version", "description", "dependencies"]:

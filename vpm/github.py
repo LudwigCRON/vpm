@@ -2,9 +2,15 @@
 # coding: utf-8
 
 import os
+import sys
 import json
 import base64
 from urllib.request import urlopen, Request
+
+vpm_module = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(vpm_module)
+
+import vpm
 
 # According to https://developer.github.com/v3/#rate-limiting
 # 60 reqs/h if unauth and 5000 reqs/h if basic
@@ -38,4 +44,5 @@ if __name__ == "__main__":
         if os.path.basename(file.get("path")) == "package.yml":
             file["depth"] = len(file.get("path", "").split('/'))
             print(file)
-            print(github_content(file.get("url")))
+            pkg = vpm.read_package(file, content=github_content(file.get("url")))
+            print(pkg.to_dict())
