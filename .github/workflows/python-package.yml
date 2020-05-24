@@ -37,4 +37,4 @@ jobs:
     - name: Unit tests
       run: |
         cd ./tests
-        python -m unittest
+        python -m unittest -vv

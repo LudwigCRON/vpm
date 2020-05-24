@@ -21,7 +21,7 @@ def find_config():
     # find a vpm.config file in the current directory tree
     cfgs = Path(os.getcwd()).glob("**/vpm.config")
     for cfg in cfgs:
-        os.environ["PLATFORM"] = os.path.dirname(cfg)
+        os.environ["PLATFORM"] = os.path.dirname(str(cfg))
         return read_config(str(cfg))
 
 

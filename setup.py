@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 project_url = 'https://github.com/LudwigCRON/vpm'
 
