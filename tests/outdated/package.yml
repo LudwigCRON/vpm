@@ -4,8 +4,8 @@ dependencies:
 - resync 0.0.1
 description: 1 to 14 bits sar
 designs:
-- /Users/ludwigcron/projects/electronic/vpm/tests/outdated/design/core.v
-- /Users/ludwigcron/projects/electronic/vpm/tests/outdated/design/ports.v
+- ./design/core.v
+- ./design/ports.v
 libraries: []
 models: []
 name: adc_sar
