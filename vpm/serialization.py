@@ -16,6 +16,9 @@ def read_package(path: str = None, content: str = None):
         # check in the package file
         with open(pkg_file, "r+") as fp:
             pkg = yaml.load(fp, Loader=yaml.FullLoader)
+    elif isinstance(content, dict):
+        pkg_file = path
+        pkg = content
     else:
         pkg_file = path
         pkg = yaml.load(content, Loader=yaml.FullLoader)

@@ -4,7 +4,10 @@
 import os
 import sys
 import json
+import yaml
 import base64
+import tempfile
+
 from urllib.request import urlopen, Request
 
 vpm_module = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -23,26 +26,70 @@ BASEURL = "https://api.github.com/repos/%s/git/trees/master?recursive=1"
 VPM_GITHUB_TOKEN = os.getenv("VPM_GITHUB_TOKEN")
 
 
-def github_request(url):
+def github_request(url: str):
     req = Request(url)
     req.add_header("Authorization", "token %s" % VPM_GITHUB_TOKEN)
     res = urlopen(req)
     return json.load(res)
 
 
-def github_content(path):
+def github_content(path: str):
     res = github_request(path)
     encoding = res.get("encoding")
     if encoding == "base64":
         return base64.b64decode(res.get("content")).decode("utf-8")
-    print(encoding)
+    print("unknown encoding %s" % encoding, file=sys.stderr)
+    return ""
+
+
+def github_download(file: dict, dir: str):
+    filename = os.path.basename(file.get("path"))
+    url = file.get("url")
+    filepath = os.path.join(dir, filename)
+    with open(filepath, "w+") as fp:
+        fp.write(github_content(url))
+    return filepath
+
+
+def github_findfiles(tree: list = [], path: str = ""):
+    for file in tree:
+        if path in file.get("path"):
+            yield file
+
+
+def github_findfile(tree: list = [], path: str = ""):
+    for file in tree:
+        if path in file.get("path"):
+            return file
+    return {}
 
 
 if __name__ == "__main__":
     res = github_request(BASEURL % "LudwigCRON/vpm")
-    for file in res.get("tree", []):
-        if os.path.basename(file.get("path")) == "package.yml":
-            file["depth"] = len(file.get("path", "").split('/'))
-            print(file)
-            pkg = vpm.read_package(file, content=github_content(file.get("url")))
-            print(pkg.to_dict())
+    tree = res.get("tree", [])
+    for yml in github_findfiles(tree, "/package.yml"):
+        url = yml.get("url")
+        base_path = os.path.dirname(yml.get("path"))
+        content = github_content(url)
+        print(yml.get("path"), url)
+        # parse to dict
+        d = yaml.load(content, Loader=yaml.FullLoader)
+        # make temporary directory
+        dir = tempfile.mkdtemp()
+        # download all files
+        for attr in vpm.Package.__slots__:
+            if attr in ["name", "version", "description", "dependencies"]:
+                continue
+            if attr not in d.keys():
+                continue
+            df = d.get(attr) or []
+            files = [os.path.normpath(os.path.join(base_path, f)) for f in df]
+            files = [github_findfile(tree, f) for f in files]
+            d[attr] = [github_download(f, dir) for f in files if f]
+        # generate a new yml pointing to tmp file
+        d["depth"] = len(yml.get("path", "").split('/'))
+        pkg = vpm.read_package(
+            path=yml.get("path"),
+            content=d
+        )
+        print(pkg.to_dict())
