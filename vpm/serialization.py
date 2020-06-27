@@ -55,13 +55,17 @@ def get_package_path(path: str = None):
 
 
 def is_git_path(path: str = ""):
+    if not isinstance(path, str):
+        return False
     regex = r"(\w+\/\w+)(?:.git|\/tree\/(\w+)\/([\w\/]+))"
-    print(path, file=sys.__stdout__)
-    return re.search(regex, path)
+    m = re.search(regex, path)
+    return m if m else False
 
 
 def get_git_package(path: str = None):
     match = is_git_path(path)
     if match:
-        return vpm.github_read_packages(*match.groups())
+        grps = [g for g in match.groups() if g]
+        for pkg in vpm.github_read_packages(*grps):
+            return pkg
     return None
