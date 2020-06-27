@@ -36,7 +36,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=92 --statistics
     - name: Unit tests
       env:
-        VPM_GITHUB_TOKEN: ca368dc59a4010f368ce21215ba4e3956217885a
+        VPM_GITHUB_TOKEN: ${{ secrets.VPM_GITHUB_TOKEN }}
       run: |
         cd ./tests
         python -m unittest -vv
