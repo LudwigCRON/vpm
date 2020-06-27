@@ -25,7 +25,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        export VPM_GITHUB_TOKEN=74783fb4f0f18828af9df32cb26c89f409a63c8f
         python -m pip install --upgrade pip
         pip install flake8
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
@@ -38,4 +37,5 @@ jobs:
     - name: Unit tests
       run: |
         cd ./tests
+        export VPM_GITHUB_TOKEN=5a14c5c2eaf65735564bc1734091b7525c016a3c
         python -m unittest -vv
