@@ -30,7 +30,7 @@ def github_request(url: str):
     req = Request(url)
     req.add_header("Authorization", "token %s" % VPM_GITHUB_TOKEN)
     res = urlopen(req)
-    return json.loads(res.read(), encoding=res.headers.get_content_charset())
+    return json.loads(res.read().decode(res.headers.get_content_charset()))
 
 
 def github_content(path: str):
