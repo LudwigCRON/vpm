@@ -73,7 +73,7 @@ class DefaultTests(unittest.TestCase):
 
     @ordered
     def test_install_git_https(self):
-        # move into empty_platform
+        # move into platform_git_https
         os.chdir("%s/platform_git_https" % self.tests_dir)
         vpm.default_package()
         # list files
@@ -132,64 +132,11 @@ class DefaultTests(unittest.TestCase):
             "./design/resync/edge_resync.v",
             "./design/adc_sar/core.v",
             "./design/adc_sar/ports.v"
-        ], os.getcwd())
-
-    @ordered
-    def test_remove_git_https(self):
-        # move into empty_platform
-        os.chdir("%s/platform_git_https" % self.tests_dir)
-        # list files
-        files = list(Path(os.getcwd()).rglob("*.*"))
-        DefaultTests.exact_filelist(files, [
-            "./vpm.config",
-            "./package.yml",
-            "./design/resync/edge_resync.v",
-            "./design/adc_sar/core.v",
-            "./design/adc_sar/ports.v"
-        ], os.getcwd())
-        # remove sar (not existing)
-        vpm.remove_package("sar")
-        # check files
-        files = list(Path(os.getcwd()).rglob("*.*"))
-        DefaultTests.exact_filelist(files, [
-            "./vpm.config",
-            "./package.yml",
-            "./design/resync/edge_resync.v",
-            "./design/adc_sar/core.v",
-            "./design/adc_sar/ports.v"
-        ], os.getcwd())
-        # check fail is not a string
-        vpm.remove_package(None)
-        # check files
-        files = list(Path(os.getcwd()).rglob("*.*"))
-        DefaultTests.exact_filelist(files, [
-            "./vpm.config",
-            "./package.yml",
-            "./design/resync/edge_resync.v",
-            "./design/adc_sar/core.v",
-            "./design/adc_sar/ports.v"
-        ], os.getcwd())
-        # remove adc_sar
-        vpm.remove_package("adc_sar")
-        # check files
-        files = list(Path(os.getcwd()).rglob("*.*"))
-        DefaultTests.exact_filelist(files, [
-            "./vpm.config",
-            "./package.yml",
-            "./design/resync/edge_resync.v"
-        ], os.getcwd())
-        # remove resync
-        vpm.remove_package("resync")
-        # check files
-        files = list(Path(os.getcwd()).rglob("*.*"))
-        DefaultTests.exact_filelist(files, [
-            "./vpm.config",
-            "./package.yml"
         ], os.getcwd())
 
     @ordered
     def test_installed_git_https(self):
-        # move into empty_platform
+        # move into platform_git_https
         os.chdir("%s/platform_git_https" % self.tests_dir)
         # just check there is a package called * do not care of the version so add -1
         assert not vpm.is_package_installed(vpm.Package.parse_package_name("sar -1"))
@@ -198,8 +145,61 @@ class DefaultTests(unittest.TestCase):
         assert vpm.is_package_installed(vpm.Package.parse_package_name("adc_sar -1"))
 
     @ordered
+    def test_remove_git_https(self):
+        # move into platform_git_https
+        os.chdir("%s/platform_git_https" % self.tests_dir)
+        # list files
+        files = list(Path(os.getcwd()).rglob("*.*"))
+        DefaultTests.exact_filelist(files, [
+            "./vpm.config",
+            "./package.yml",
+            "./design/resync/edge_resync.v",
+            "./design/adc_sar/core.v",
+            "./design/adc_sar/ports.v"
+        ], os.getcwd())
+        # remove sar (not existing)
+        vpm.remove_package("sar")
+        # check files
+        files = list(Path(os.getcwd()).rglob("*.*"))
+        DefaultTests.exact_filelist(files, [
+            "./vpm.config",
+            "./package.yml",
+            "./design/resync/edge_resync.v",
+            "./design/adc_sar/core.v",
+            "./design/adc_sar/ports.v"
+        ], os.getcwd())
+        # check fail is not a string
+        vpm.remove_package(None)
+        # check files
+        files = list(Path(os.getcwd()).rglob("*.*"))
+        DefaultTests.exact_filelist(files, [
+            "./vpm.config",
+            "./package.yml",
+            "./design/resync/edge_resync.v",
+            "./design/adc_sar/core.v",
+            "./design/adc_sar/ports.v"
+        ], os.getcwd())
+        # remove adc_sar
+        vpm.remove_package("adc_sar")
+        # check files
+        files = list(Path(os.getcwd()).rglob("*.*"))
+        DefaultTests.exact_filelist(files, [
+            "./vpm.config",
+            "./package.yml",
+            "./design/resync/edge_resync.v"
+        ], os.getcwd())
+        # remove resync
+        vpm.remove_package("resync")
+        # check files
+        files = list(Path(os.getcwd()).rglob("*.*"))
+        DefaultTests.exact_filelist(files, [
+            "./vpm.config",
+            "./package.yml"
+        ], os.getcwd())
+
+    @ordered
     def test_install_git_ssh(self):
-        # move into empty_platform
+        # move into platform_git_ssh
         os.chdir("%s/platform_git_ssh" % self.tests_dir)
         vpm.default_package()
         # list files
@@ -261,8 +261,18 @@ class DefaultTests(unittest.TestCase):
         ], os.getcwd())
 
     @ordered
+    def test_installed_git_ssh(self):
+        # move into platform_git_ssh
+        os.chdir("%s/platform_git_ssh" % self.tests_dir)
+        # just check there is a package called * do not care of the version so add -1
+        assert not vpm.is_package_installed(vpm.Package.parse_package_name("sar -1"))
+        assert vpm.is_package_installed(vpm.Package.parse_package_name("basic_package -1"))
+        assert vpm.is_package_installed(vpm.Package.parse_package_name("resync -1"))
+        assert vpm.is_package_installed(vpm.Package.parse_package_name("adc_sar -1"))
+
+    @ordered
     def test_remove_git_ssh(self):
-        # move into empty_platform
+        # move into platform_git_ssh
         os.chdir("%s/platform_git_ssh" % self.tests_dir)
         # list files
         files = list(Path(os.getcwd()).rglob("*.*"))
@@ -312,13 +322,3 @@ class DefaultTests(unittest.TestCase):
             "./vpm.config",
             "./package.yml"
         ], os.getcwd())
-
-    @ordered
-    def test_installed_git_ssh(self):
-        # move into empty_platform
-        os.chdir("%s/platform_git_ssh" % self.tests_dir)
-        # just check there is a package called * do not care of the version so add -1
-        assert not vpm.is_package_installed(vpm.Package.parse_package_name("sar -1"))
-        assert vpm.is_package_installed(vpm.Package.parse_package_name("basic_package -1"))
-        assert vpm.is_package_installed(vpm.Package.parse_package_name("resync -1"))
-        assert vpm.is_package_installed(vpm.Package.parse_package_name("adc_sar -1"))

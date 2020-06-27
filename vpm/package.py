@@ -224,6 +224,9 @@ class Package(object):
     def uniquify_dependencies(self):
         d = {}
         for pkg in self.dependencies:
+            # remove None pkg or empty one
+            if not pkg:
+                continue
             if pkg.name not in d:
                 d[pkg.name] = pkg
             elif pkg.name in d and pkg > d[pkg.name]:

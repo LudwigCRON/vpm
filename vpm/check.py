@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+import re
 import vpm
 
 
@@ -28,3 +29,11 @@ def is_package(p: vpm.Package, path: str = None, identical: bool = False):
     # the package name find in repository
     if p.name == pkg.name:
         return pkg >= p if p.version not in ('', None) else True
+
+
+def is_git_path(path: str = ""):
+    if not isinstance(path, str):
+        return False
+    regex = r"(\w+\/\w+)(?:\.git|\/tree):?\/?(\w+)?\/?([\w\/]+)?"
+    m = re.search(regex, path)
+    return m if m else False

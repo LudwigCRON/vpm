@@ -56,7 +56,7 @@ def retrieve_files(pkg_name: str = None):
 
 
 def dispatch_files(path: str = None):
-    if path is None or not os.path.exists(path):
+    if path is None or (not vpm.is_git_path(path) and not os.path.exists(path)):
         return None
     # read the config
     cfg = vpm.find_config()
@@ -79,7 +79,7 @@ def dispatch_files(path: str = None):
 
 
 def remove_files(path: str = None):
-    if path is None or not os.path.exists(path):
+    if path is None or (not vpm.is_git_path(path) and not os.path.exists(path)):
         return None
     # read the config
     cfg = vpm.find_config()
@@ -104,7 +104,7 @@ def remove_files(path: str = None):
 
 
 def check_dependencies(path: str = None, force: bool = False):
-    if path is None or not os.path.exists(path):
+    if path is None or (not vpm.is_git_path(path) and not os.path.exists(path)):
         return None
     # read the package file
     pkg_file = os.path.join(path, vpm.DEFAULT_PKG) if os.path.isdir(path) else path

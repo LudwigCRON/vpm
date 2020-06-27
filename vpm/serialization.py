@@ -2,9 +2,7 @@
 # coding: utf-8
 
 import os
-import re
 import vpm
-import sys
 import yaml
 
 
@@ -14,7 +12,7 @@ DEFAULT_PKG = "package.yml"
 def read_package(path: str = None, content: str = None):
     if content is None:
         # check git package
-        if is_git_path(path):
+        if vpm.is_git_path(path):
             return get_git_package(path)
         # create package file if none
         pkg_file = get_package_path(path)
@@ -54,16 +52,8 @@ def get_package_path(path: str = None):
     return pkg_file
 
 
-def is_git_path(path: str = ""):
-    if not isinstance(path, str):
-        return False
-    regex = r"(\w+\/\w+)(?:.git|\/tree\/(\w+)\/([\w\/]+))"
-    m = re.search(regex, path)
-    return m if m else False
-
-
 def get_git_package(path: str = None):
-    match = is_git_path(path)
+    match = vpm.is_git_path(path)
     if match:
         grps = [g for g in match.groups() if g]
         for pkg in vpm.github_read_packages(*grps):
