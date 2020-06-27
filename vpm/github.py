@@ -89,9 +89,3 @@ def github_read_packages(repository: str, branch: str = "master", path: str = ""
         # generate a new yml pointing to tmp file
         d["depth"] = len(yml.get("path", "").split('/'))
         yield vpm.read_package(path=yml.get("path"), content=d)
-
-
-if __name__ == "__main__":
-    pkgs = github_read_packages("LudwigCRON/vpm")
-    for pkg in pkgs:
-        print(pkg.to_dict())
