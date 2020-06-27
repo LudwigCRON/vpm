@@ -37,5 +37,4 @@ jobs:
     - name: Unit tests
       run: |
         cd ./tests
-        export VPM_GITHUB_TOKEN=5a14c5c2eaf65735564bc1734091b7525c016a3c
-        python -m unittest -vv
+        VPM_GITHUB_TOKEN="5a14c5c2eaf65735564bc1734091b7525c016a3c" python -m unittest -vv
