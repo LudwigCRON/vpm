@@ -20,7 +20,7 @@ import vpm
 # For search api respectivly 10 and 30 reqs/min
 
 # user/repo or user/repo as username:password
-BASEURL = "https://api.github.com/repos/%s/git/trees/master?recursive=1"
+BASEURL = "https://api.github.com/repos/%s/git/trees/%s?recursive=1"
 
 # basic auth is deprecated and will be removed
 VPM_GITHUB_TOKEN = os.getenv("VPM_GITHUB_TOKEN")
@@ -64,10 +64,10 @@ def github_findfile(tree: list = [], path: str = ""):
     return {}
 
 
-if __name__ == "__main__":
-    res = github_request(BASEURL % "LudwigCRON/vpm")
+def github_read_packages(repository: str, branch: str = "master", path: str = ""):
+    res = github_request(BASEURL % (repository, branch))
     tree = res.get("tree", [])
-    for yml in github_findfiles(tree, "/package.yml"):
+    for yml in github_findfiles(tree, "%s/package.yml" % path):
         url = yml.get("url")
         base_path = os.path.dirname(yml.get("path"))
         content = github_content(url)
@@ -88,8 +88,10 @@ if __name__ == "__main__":
             d[attr] = [github_download(f, dir) for f in files if f]
         # generate a new yml pointing to tmp file
         d["depth"] = len(yml.get("path", "").split('/'))
-        pkg = vpm.read_package(
-            path=yml.get("path"),
-            content=d
-        )
+        yield vpm.read_package(path=yml.get("path"), content=d)
+
+
+if __name__ == "__main__":
+    pkgs = github_read_packages("LudwigCRON/vpm")
+    for pkg in pkgs:
         print(pkg.to_dict())
